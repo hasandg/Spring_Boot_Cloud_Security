@@ -1,10 +1,9 @@
 package com.appsdeveloperblog.photoapp.api.users.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
+import com.appsdeveloperblog.photoapp.api.users.shared.Roles;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.slf4j.Logger;
@@ -34,6 +33,13 @@ import com.appsdeveloperblog.photoapp.api.users.data.*;
 public class UsersServiceImpl implements UsersService {
 	
 	UsersRepository usersRepository;
+
+	@Autowired
+	AuthorityRepository authorityRepository;
+
+	@Autowired
+	RoleRepository roleRepository;
+
 	BCryptPasswordEncoder bCryptPasswordEncoder;
 	//RestTemplate restTemplate;
 	Environment environment;
@@ -59,12 +65,17 @@ public class UsersServiceImpl implements UsersService {
 		
 		userDetails.setUserId(UUID.randomUUID().toString());
 		userDetails.setEncryptedPassword(bCryptPasswordEncoder.encode(userDetails.getPassword()));
-		
-		ModelMapper modelMapper = new ModelMapper(); 
+		ModelMapper modelMapper = new ModelMapper();
 		modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-		
-		UserEntity userEntity = modelMapper.map(userDetails, UserEntity.class);
 
+		AuthorityEntity readAuthority = createAuthority("READ");
+		AuthorityEntity writeAuthority = createAuthority("WRITE");
+
+		RoleEntity roleUser = createRole(Roles.ROLE_USER.name(), Arrays.asList(readAuthority, writeAuthority));
+
+
+		UserEntity userEntity = modelMapper.map(userDetails, UserEntity.class);
+		userEntity.setRoles( Arrays.asList(roleUser));
 		usersRepository.save(userEntity);
 		
 		UserDto returnValue = modelMapper.map(userEntity, UserDto.class);
@@ -130,8 +141,32 @@ public class UsersServiceImpl implements UsersService {
 		
 		return userDto;
 	}
-	
-	
-	
+
+	@Transactional
+	private AuthorityEntity createAuthority(String name) {
+
+		AuthorityEntity authority = authorityRepository.findByName(name);
+
+		if(authority == null) {
+			authority = new AuthorityEntity(name);
+			authorityRepository.save(authority);
+		}
+
+		return authority;
+	}
+
+	@Transactional
+	private RoleEntity createRole(String name, Collection<AuthorityEntity> authorities) {
+
+		RoleEntity role = roleRepository.findByName(name);
+
+		if(role == null) {
+			role = new RoleEntity(name, authorities);
+			roleRepository.save(role);
+		}
+
+		return role;
+
+	}
 
 }

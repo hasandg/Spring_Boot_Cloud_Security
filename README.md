@@ -1,4 +1,3 @@
-# Spring_Cloud_Security
 
+In the PhotoAppApiUsers project, ensure that the 'gateway.ip' configuration is set to the current gateway IP address. Failure to do so will result in a 403 Forbidden error when attempting to access the application.
 
-in PhotoAppApiUsers project gateway.ip config must use current gateway ip otherwise 403 error will get!!!
