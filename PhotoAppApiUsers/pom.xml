@@ -131,10 +131,10 @@
 			<artifactId>resilience4j-spring-boot2</artifactId>
 		</dependency>
 
-		<dependency>
+<!--		<dependency>
 			<groupId>io.micrometer</groupId>
 			<artifactId>micrometer-observation</artifactId>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>io.micrometer</groupId>
 			<artifactId>micrometer-tracing-bridge-brave</artifactId>
@@ -143,11 +143,9 @@
 			<groupId>io.zipkin.reporter2</groupId>
 			<artifactId>zipkin-reporter-brave</artifactId>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/io.github.openfeign/feign-micrometer -->
 		<dependency>
 			<groupId>io.github.openfeign</groupId>
 			<artifactId>feign-micrometer</artifactId>
-			<scope>test</scope>
 		</dependency>
 
 
