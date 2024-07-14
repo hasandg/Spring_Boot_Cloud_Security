@@ -1,4 +1,6 @@
-FROM openjdk:8-jdk-alpine 
+#FROM openjdk:8-jdk-alpine
+#FROM amazoncorretto:21
+FROM bitnami/java:21.0.3-12
 VOLUME /tmp 
 COPY target/PhotoAppApiAlbums-0.0.1-SNAPSHOT.jar PhotoAppApiAlbums.jar 
 ENTRYPOINT ["java","-jar","PhotoAppApiAlbums.jar"]

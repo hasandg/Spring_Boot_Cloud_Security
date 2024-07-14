@@ -9,7 +9,7 @@
 		<version>3.2.1</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.appsdeveloperblog.photoapp.api.albums</groupId>
+	<groupId>com.hasandag.photoapp.api.albums</groupId>
 	<artifactId>PhotoAppApiAlbums</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>PhotoAppApiAlbums</name>
@@ -64,8 +64,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.appsdeveloperblog</groupId>
-			<artifactId>JwtAuthorities</artifactId>
+			<groupId>com.hasandag</groupId>
+			<artifactId>jwt-authorities</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		

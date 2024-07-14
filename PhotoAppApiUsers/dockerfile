@@ -1,4 +1,4 @@
-FROM openjdk:8-jdk-alpine 
-VOLUME /tmp 
-COPY target/PhotoAppApiUsers-0.0.1-SNAPSHOT.jar users-microservice.jar 
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/users-microservice.jar"] 
+FROM bitnami/java:21.0.3-12
+VOLUME /tmp
+COPY target/PhotoAppApiUsers-0.0.1-SNAPSHOT.jar users-microservice.jar
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/users-microservice.jar","-agentlib:jdwp=transport=dt_socket,address=*:5005,server=y,suspend=n"]
