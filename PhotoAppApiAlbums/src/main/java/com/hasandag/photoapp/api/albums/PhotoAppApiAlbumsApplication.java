@@ -32,6 +32,7 @@ public class PhotoAppApiAlbumsApplication implements CommandLineRunner {
 				System.out.println("myexcercise.environment: *********** "+environment.getProperty("myexcercise.environment"));
 				System.out.println("spring.security.user.name: *********** "+environment.getProperty("spring.security.user.name"));
 				System.out.println("spring.security.user.password: *********** "+environment.getProperty("spring.security.user.password"));
+				System.out.println("my.bootrsap.environment: *********** "+environment.getProperty("my.bootrsap.environment"));
 
 				sleep(10000);
 			} catch (InterruptedException e) {
