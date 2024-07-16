@@ -8,6 +8,7 @@ Feign Client, Resilience4j-Circuit Breaker,
 Distributed Tracing with Micrometer and Zipkin,   
 Aggrogating Log files with ELK Stack,   
 Run Microservice with Docker Container on AWS EC2 ...  
+Postgresql Database
 
 
 
