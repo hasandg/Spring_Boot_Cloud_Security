@@ -4,6 +4,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -51,16 +52,14 @@ public class InitialUsersSetup {
 		
 		createRole(Roles.ROLE_USER.name(), Arrays.asList(readAuthority, writeAuthority));
 		RoleEntity roleAdmin = createRole(Roles.ROLE_ADMIN.name(), Arrays.asList(readAuthority, writeAuthority, deleteAuthority));
-		
-		if(roleAdmin == null) return;
-		
+
 		UserEntity adminUser = new UserEntity();
 		adminUser.setFirstName("Hasan");
 		adminUser.setLastName("DAG");
 		adminUser.setEmail("admin@test.com");
 		adminUser.setUserId(UUID.randomUUID().toString());
 		adminUser.setEncryptedPassword(bCryptPasswordEncoder.encode("12345678"));
-		adminUser.setRoles(Arrays.asList(roleAdmin));
+		adminUser.setRoles(List.of(roleAdmin));
 		
 		UserEntity storedAdminUser = usersRepository.findByEmail("admin@test.com");
 		

@@ -31,98 +31,99 @@ import com.hasandag.photoapp.api.users.data.*;
 
 @Service
 public class UsersServiceImpl implements UsersService {
-	
-	UsersRepository usersRepository;
 
-	@Autowired
-	AuthorityRepository authorityRepository;
+    UsersRepository usersRepository;
 
-	@Autowired
-	RoleRepository roleRepository;
+    AuthorityRepository authorityRepository;
 
-	BCryptPasswordEncoder bCryptPasswordEncoder;
-	//RestTemplate restTemplate;
-	Environment environment;
-	AlbumsServiceClient albumsServiceClient;
-	
-	Logger logger = LoggerFactory.getLogger(this.getClass());
-	
-	@Autowired
-	public UsersServiceImpl(UsersRepository usersRepository, 
-			BCryptPasswordEncoder bCryptPasswordEncoder,
-			AlbumsServiceClient albumsServiceClient,
-			Environment environment)
-	{
-		this.usersRepository = usersRepository;
-		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-		this.albumsServiceClient = albumsServiceClient;
-		this.environment = environment;
-	}
- 
-	@Override
-	public UserDto createUser(UserDto userDetails) {
-		// TODO Auto-generated method stub
-		
-		userDetails.setUserId(UUID.randomUUID().toString());
-		userDetails.setEncryptedPassword(bCryptPasswordEncoder.encode(userDetails.getPassword()));
-		ModelMapper modelMapper = new ModelMapper();
-		modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+    RoleRepository roleRepository;
 
-		AuthorityEntity readAuthority = createAuthority("READ");
-		AuthorityEntity writeAuthority = createAuthority("WRITE");
+    BCryptPasswordEncoder bCryptPasswordEncoder;
+    //RestTemplate restTemplate;
+    Environment environment;
 
-		RoleEntity roleUser = createRole(Roles.ROLE_USER.name(), Arrays.asList(readAuthority, writeAuthority));
+    AlbumsServiceClient albumsServiceClient;
+
+    Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    public UsersServiceImpl(UsersRepository usersRepository,
+                            AuthorityRepository authorityRepository,
+                            RoleRepository roleRepository,
+                            BCryptPasswordEncoder bCryptPasswordEncoder,
+                            AlbumsServiceClient albumsServiceClient,
+                            Environment environment) {
+        this.usersRepository = usersRepository;
+        this.authorityRepository = authorityRepository;
+        this.roleRepository = roleRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.albumsServiceClient = albumsServiceClient;
+        this.environment = environment;
+
+    }
+
+    @Override
+    public UserDto createUser(UserDto userDetails) {
+        userDetails.setUserId(UUID.randomUUID().toString());
+        userDetails.setEncryptedPassword(bCryptPasswordEncoder.encode(userDetails.getPassword()));
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+
+        AuthorityEntity readAuthority = createAuthority("READ");
+        AuthorityEntity writeAuthority = createAuthority("WRITE");
+
+        RoleEntity roleUser = createRole(Roles.ROLE_USER.name(), Arrays.asList(readAuthority, writeAuthority));
 
 
-		UserEntity userEntity = modelMapper.map(userDetails, UserEntity.class);
-		userEntity.setRoles( Arrays.asList(roleUser));
-		usersRepository.save(userEntity);
-		
-		UserDto returnValue = modelMapper.map(userEntity, UserDto.class);
- 
-		return returnValue;
-	}
+        UserEntity userEntity = modelMapper.map(userDetails, UserEntity.class);
+        userEntity.setRoles(Arrays.asList(roleUser));
+        usersRepository.save(userEntity);
 
-	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		UserEntity userEntity = usersRepository.findByEmail(username);
-		
-		if(userEntity == null) throw new UsernameNotFoundException(username);	
-		
-		Collection<GrantedAuthority> authorities = new ArrayList<>();
-		Collection<RoleEntity> roles = userEntity.getRoles();
-		
-		roles.forEach((role) -> {
-			authorities.add(new SimpleGrantedAuthority(role.getName()));
-			
-			Collection<AuthorityEntity> authorityEntities = role.getAuthorities();
-			authorityEntities.forEach((authorityEntity) -> {
-				authorities.add(new SimpleGrantedAuthority(authorityEntity.getName()));
-			});
-		});
-		
-		return new User(userEntity.getEmail(), 
-				userEntity.getEncryptedPassword(), 
-				true, true, true, true, 
-				authorities);
-	}
+        UserDto returnValue = modelMapper.map(userEntity, UserDto.class);
 
-	@Override
-	public UserDto getUserDetailsByEmail(String email) { 
-		UserEntity userEntity = usersRepository.findByEmail(email);
-		
-		if(userEntity == null) throw new UsernameNotFoundException(email);
-		
-		
-		return new ModelMapper().map(userEntity, UserDto.class);
-	}
+        return returnValue;
+    }
 
-	@Override
-	public UserDto getUserByUserId(String userId, String authorization) {
-		
-        UserEntity userEntity = usersRepository.findByUserId(userId);     
-        if(userEntity == null) throw new UsernameNotFoundException("User not found");
-        
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        UserEntity userEntity = usersRepository.findByEmail(username);
+
+        if (userEntity == null) throw new UsernameNotFoundException(username);
+
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        Collection<RoleEntity> roles = userEntity.getRoles();
+
+        roles.forEach((role) -> {
+            authorities.add(new SimpleGrantedAuthority(role.getName()));
+
+            Collection<AuthorityEntity> authorityEntities = role.getAuthorities();
+            authorityEntities.forEach((authorityEntity) -> {
+                authorities.add(new SimpleGrantedAuthority(authorityEntity.getName()));
+            });
+        });
+
+        return new User(userEntity.getEmail(),
+                userEntity.getEncryptedPassword(),
+                true, true, true, true,
+                authorities);
+    }
+
+    @Override
+    public UserDto getUserDetailsByEmail(String email) {
+        UserEntity userEntity = usersRepository.findByEmail(email);
+
+        if (userEntity == null) throw new UsernameNotFoundException(email);
+
+
+        return new ModelMapper().map(userEntity, UserDto.class);
+    }
+
+    @Override
+    public UserDto getUserByUserId(String userId, String authorization) {
+
+        UserEntity userEntity = usersRepository.findByUserId(userId);
+        if (userEntity == null) throw new UsernameNotFoundException("User not found");
+
         UserDto userDto = new ModelMapper().map(userEntity, UserDto.class);
         
         /*
@@ -132,41 +133,41 @@ public class UsersServiceImpl implements UsersService {
         });
         List<AlbumResponseModel> albumsList = albumsListResponse.getBody(); 
         */
-        
+
         logger.debug("Before calling albums Microservice");
         List<AlbumResponseModel> albumsList = albumsServiceClient.getAlbums(userId, authorization);
         logger.debug("After calling albums Microservice");
-        
-		userDto.setAlbums(albumsList);
-		
-		return userDto;
-	}
 
-	@Transactional
-	private AuthorityEntity createAuthority(String name) {
+        userDto.setAlbums(albumsList);
 
-		AuthorityEntity authority = authorityRepository.findByName(name);
+        return userDto;
+    }
 
-		if(authority == null) {
-			authority = new AuthorityEntity(name);
-			authorityRepository.save(authority);
-		}
+    @Transactional
+    private AuthorityEntity createAuthority(String name) {
 
-		return authority;
-	}
+        AuthorityEntity authority = authorityRepository.findByName(name);
 
-	@Transactional
-	private RoleEntity createRole(String name, Collection<AuthorityEntity> authorities) {
+        if (authority == null) {
+            authority = new AuthorityEntity(name);
+            authorityRepository.save(authority);
+        }
 
-		RoleEntity role = roleRepository.findByName(name);
+        return authority;
+    }
 
-		if(role == null) {
-			role = new RoleEntity(name, authorities);
-			roleRepository.save(role);
-		}
+    @Transactional
+    private RoleEntity createRole(String name, Collection<AuthorityEntity> authorities) {
 
-		return role;
+        RoleEntity role = roleRepository.findByName(name);
 
-	}
+        if (role == null) {
+            role = new RoleEntity(name, authorities);
+            roleRepository.save(role);
+        }
+
+        return role;
+
+    }
 
 }
